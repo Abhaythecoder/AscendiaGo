@@ -1,127 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ascendia GO|Plan Your Perfect Trip</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"rel="stylesheet">
+
     <style>
+        /* =========================================================
+         * Enhanced "Soft UI / Neumorphic" Theme with Textured Background
+         * =========================================================
+        */
         :root {
-            --primary: #4361ee;
-            --primary-light: #4895ef;
-            --secondary: #3f37c9;
-            --accent: #4cc9f0;
-            --success: #38b000;
-            --warning: #ffaa00;
-            --danger: #ef233c;
-            --dark-1: #0b132b;
-            --dark-2: #1c2541;
-            --dark-3: #3a506b;
-            --light-1: #f8f9fa;
-            --light-2: #e9ecef;
-            --light-3: #dee2e6;
+            --background: #E6EDF7;
+            --primary: #5B86E5;
+            --primary-gradient: linear-gradient(135deg, #5B86E5, #36D1DC);
+            --text-primary: #2D3748;
+            --text-secondary: #718096;
+            --light-shadow: rgba(255, 255, 255, 0.8);
+            --dark-shadow: rgba(190, 205, 226, 0.7);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.16), 0 4px 6px rgba(0,0,0,0.23);
-            --shadow-lg: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--dark-1);
-            color: var(--light-2);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #E6EDF7 0%, #F5F9FF 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Subtle background texture */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 20%),
+                radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 20%),
+                radial-gradient(circle at 50% 80%, rgba(235, 240, 250, 0.4) 0%, transparent 20%);
+            background-size: 100% 100%;
+            z-index: -1;
+            pointer-events: none;
         }
 
         .container {
             width: 100%;
             max-width: 700px;
-            margin: 20px;
-            background-color: var(--dark-2);
             padding: 40px;
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--dark-3);
+            background-color: var(--background);
+            border-radius: 24px;
+            box-shadow:
+                12px 12px 24px var(--dark-shadow),
+                -12px -12px 24px var(--light-shadow);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        /* Subtle container texture */
+        .container::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.4) 0%, transparent 10%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 10%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container>* {
+            position: relative;
+            z-index: 1;
         }
 
         h1 {
-            font-size: 2rem;
-            color: white;
+            font-size: 2.5rem;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 0.75rem;
             font-weight: 700;
+            color: var(--text-primary);
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .subtitle {
             text-align: center;
-            color: var(--light-3);
+            color: var(--text-secondary);
             margin-bottom: 40px;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            font-weight: 400;
         }
 
         .progress-bar-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            padding: 6px;
+            border-radius: 12px;
+            box-shadow:
+                inset 4px 4px 8px var(--dark-shadow),
+                inset -4px -4px 8px var(--light-shadow);
+            background: rgba(255, 255, 255, 0.4);
         }
-        
+
         .progress-bar {
-            flex-grow: 1;
-            height: 8px;
-            background-color: var(--dark-3);
-            border-radius: 5px;
+            height: 14px;
+            border-radius: 10px;
             overflow: hidden;
-            margin-right: 15px;
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .progress-bar-fill {
             height: 100%;
-            width: 0%;
-            background-color: var(--success);
-            border-radius: 5px;
-            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        .progress-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--light-3);
-            min-width: 80px;
-            text-align: right;
+            width: 33%;
+            background: var(--primary-gradient);
+            border-radius: 10px;
+            transition: width 0.6s ease-out;
+            box-shadow: 0 0 10px rgba(91, 134, 229, 0.4);
         }
 
         .form-section {
             display: none;
+            animation: fadeIn 0.5s ease-out;
         }
 
         .form-section.active {
             display: block;
         }
 
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         h2 {
-            font-size: 1.5rem;
-            color: var(--light-1);
-            margin-bottom: 25px;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 10px;
+            font-size: 1.6rem;
+            color: var(--text-primary);
+            margin-bottom: 28px;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        h2::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 28px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             font-weight: 500;
-            color: var(--light-2);
+            color: var(--text-primary);
+            font-size: 1.05rem;
         }
 
         input[type="text"],
@@ -129,40 +201,68 @@
         input[type="time"],
         select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--dark-3);
-            border-radius: 0.5rem;
-            background-color: var(--dark-3);
-            color: var(--light-1);
+            padding: 16px 20px;
+            border: none;
+            border-radius: 16px;
+            background-color: var(--background);
+            color: var(--text-primary);
             font-size: 1rem;
-            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             transition: var(--transition);
+            box-shadow:
+                inset 5px 5px 10px var(--dark-shadow),
+                inset -5px -5px 10px var(--light-shadow);
         }
 
-        input:focus, select:focus {
+        input:focus,
+        select:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            box-shadow:
+                inset 3px 3px 6px var(--dark-shadow),
+                inset -3px -3px 6px var(--light-shadow),
+                0 0 0 2px rgba(91, 134, 229, 0.3);
         }
 
-        .radio-group, .checkbox-group {
+        .radio-group,
+        .checkbox-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .radio-group-item, .checkbox-group-item {
-            display: inline-block;
+            gap: 1.2rem;
+            margin-top: 8px;
         }
 
-        .radio-group label, .checkbox-group label {
-            background-color: var(--dark-3);
-            padding: 12px 20px;
-            border-radius: 0.5rem;
+        .radio-group label,
+        .checkbox-group label {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            padding: 16px 20px;
+            border-radius: 16px;
             cursor: pointer;
-            border: 1px solid var(--dark-3);
             transition: var(--transition);
-            font-weight: 400;
+            font-weight: 500;
+            color: var(--text-secondary);
+            box-shadow:
+                5px 5px 10px var(--dark-shadow),
+                -5px -5px 10px var(--light-shadow);
+            margin-bottom: 0;
+        }
+
+        .radio-group label:hover,
+        .checkbox-group label:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                7px 7px 14px var(--dark-shadow),
+                -7px -7px 14px var(--light-shadow);
+        }
+
+        .radio-group input[type="radio"]:checked+label,
+        .checkbox-group input[type="checkbox"]:checked+label {
+            color: var(--primary);
+            box-shadow:
+                inset 4px 4px 8px var(--dark-shadow),
+                inset -4px -4px 8px var(--light-shadow);
+            transform: translateY(2px);
         }
 
         .radio-group input[type="radio"],
@@ -170,114 +270,136 @@
             display: none;
         }
 
-        .radio-group input[type="radio"]:checked + label {
-            background-color: var(--primary);
-            color: var(--light-1);
-            border-color: var(--primary);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .checkbox-group input[type="checkbox"]:checked + label {
-            background-color: var(--primary);
-            color: var(--light-1);
-            border-color: var(--primary);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .radio-group label:hover, .checkbox-group label:hover {
-            border-color: var(--primary-light);
-        }
-
-        select[multiple] {
-            height: auto;
-            min-height: 150px;
-        }
-
-        select[multiple] option {
-            padding: 10px;
-            background-color: var(--dark-3);
-            color: var(--light-2);
-        }
-        
-        select[multiple] option:checked {
-            background-color: var(--primary);
-            color: var(--light-1);
-        }
-        
         .form-navigation {
             display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
+            justify-content: space-between;
             margin-top: 40px;
         }
 
         .form-navigation button {
-            background-color: var(--primary);
-            color: white;
-            padding: 12px 30px;
+            color: var(--text-secondary);
+            padding: 16px 32px;
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 16px;
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
             transition: var(--transition);
+            background: var(--background);
+            box-shadow:
+                5px 5px 10px var(--dark-shadow),
+                -5px -5px 10px var(--light-shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .form-navigation button:hover:not(:disabled) {
-            background-color: var(--primary-light);
+            color: var(--primary);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
+            box-shadow:
+                7px 7px 14px var(--dark-shadow),
+                -7px -7px 14px var(--light-shadow);
+        }
+
+        .form-navigation button:active:not(:disabled) {
+            box-shadow:
+                inset 4px 4px 8px var(--dark-shadow),
+                inset -4px -4px 8px var(--light-shadow);
+            transform: translateY(1px);
+        }
+
+        #submitBtn {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow:
+                5px 5px 10px var(--dark-shadow),
+                0 4px 15px rgba(91, 134, 229, 0.4);
+        }
+
+        #submitBtn:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                7px 7px 14px var(--dark-shadow),
+                0 6px 20px rgba(91, 134, 229, 0.5);
+            color: white;
         }
 
         .form-navigation button:disabled {
-            background-color: var(--dark-3);
+            color: var(--text-secondary);
             cursor: not-allowed;
+            opacity: 0.6;
             transform: none;
         }
-        
-        #submitBtn {
-            background-color: var(--success);
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+                align-items: flex-start;
+            }
+
+            .container {
+                padding: 30px 24px;
+                border-radius: 20px;
+                margin: 20px 0;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .radio-group,
+            .checkbox-group {
+                gap: 0.8rem;
+            }
+
+            .radio-group label,
+            .checkbox-group label {
+                min-width: calc(50% - 0.8rem);
+                padding: 14px 12px;
+                font-size: 0.9rem;
+            }
+
+            .form-navigation {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .form-navigation button {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
-        #submitBtn:hover:not(:disabled) {
-            background-color: #2b8e00;
-        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px 20px;
+            }
 
-        .errorlist {
-            color: var(--danger);
-            list-style-type: none;
-            padding: 0;
-            margin-top: 5px;
-            font-size: 0.85rem;
-        }
-        
-        .form-group.invalid input, .form-group.invalid select {
-            border-color: var(--danger);
-        }
-        
-        .form-group.invalid .error-message {
-            display: block;
-        }
-        
-        /* Custom Scrollbar for form elements */
-        select[multiple]::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        select[multiple]::-webkit-scrollbar-track {
-            background: var(--dark-2);
-        }
-        
-        select[multiple]::-webkit-scrollbar-thumb {
-            background: var(--dark-3);
-            border-radius: 4px;
-        }
-        
-        select[multiple]::-webkit-scrollbar-thumb:hover {
-            background: var(--primary);
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .radio-group label,
+            .checkbox-group label {
+                min-width: 100%;
+            }
+
+            input[type="text"],
+            input[type="date"],
+            input[type="time"],
+            select {
+                padding: 14px 16px;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Ascendia GO!</h1>
@@ -344,9 +466,9 @@
                     <label>Budget Level:</label>
                     <div class="radio-group">
                         {% for radio in form.budget %}
-                            <div class="radio-group-item">
-                                {{ radio }}
-                            </div>
+                        <div class="radio-group-item">
+                            {{ radio }}
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
@@ -374,143 +496,144 @@
         </form>
     </div>
 
-<script>
-    let currentTab = 0;
-    const formSections = document.getElementsByClassName("form-section");
-    const totalSteps = formSections.length;
-    const progressBarFill = document.getElementById("progressBarFill");
-    const progressLabel = document.getElementById("progressLabel");
-    const nextBtn = document.getElementById("nextBtn");
-    const prevBtn = document.getElementById("prevBtn");
-    const submitBtn = document.getElementById("submitBtn");
+    <script>
+        let currentTab = 0;
+        const formSections = document.getElementsByClassName("form-section");
+        const totalSteps = formSections.length;
+        const progressBarFill = document.getElementById("progressBarFill");
+        const progressLabel = document.getElementById("progressLabel");
+        const nextBtn = document.getElementById("nextBtn");
+        const prevBtn = document.getElementById("prevBtn");
+        const submitBtn = document.getElementById("submitBtn");
 
-    showTab(currentTab);
-
-    function showTab(n) {
-        if (n >= totalSteps || n < 0) return;
-        
-        for (let i = 0; i < formSections.length; i++) {
-            formSections[i].classList.remove('active');
-        }
-        formSections[n].classList.add('active');
-
-        prevBtn.disabled = (n === 0);
-        
-        if (n === (totalSteps - 1)) {
-            nextBtn.style.display = "none";
-            submitBtn.style.display = "inline-block";
-        } else {
-            nextBtn.style.display = "inline-block";
-            submitBtn.style.display = "none";
-        }
-        updateProgressBar();
-    }
-
-    function nextPrev(n) {
-        if (n === 1 && !validateForm()) {
-            return false;
-        }
-
-        currentTab += n;
         showTab(currentTab);
-    }
 
-    function validateForm() {
-        let currentSection = formSections[currentTab];
-        let valid = true;
-        
-        currentSection.querySelectorAll('.form-group .errorlist').forEach(el => el.remove());
+        function showTab(n) {
+            if (n >= totalSteps || n < 0) return;
 
-        currentSection.querySelectorAll('input, select').forEach(el => {
-            el.style.backgroundColor = '';
-        });
+            for (let i = 0; i < formSections.length; i++) {
+                formSections[i].classList.remove('active');
+            }
+            formSections[n].classList.add('active');
 
-        // Get all form fields in the current section
-        const fields = currentSection.querySelectorAll('input:required, select:required, input[type="radio"], input[type="checkbox"]');
-        
-        let radioGroups = {};
+            prevBtn.disabled = (n === 0);
 
-        fields.forEach(field => {
-            let fieldValid = true;
-
-            if (field.type === 'radio') {
-                if (!radioGroups[field.name]) {
-                    radioGroups[field.name] = { isChecked: false, elements: [] };
-                }
-                radioGroups[field.name].elements.push(field);
-                if (field.checked) {
-                    radioGroups[field.name].isChecked = true;
-                }
-            } else if (field.tagName === 'SELECT' && field.multiple) {
-                if (field.selectedOptions.length === 0) {
-                    fieldValid = false;
-                }
+            if (n === (totalSteps - 1)) {
+                nextBtn.style.display = "none";
+                submitBtn.style.display = "inline-block";
             } else {
-                if (field.value.trim() === '') {
-                    fieldValid = false;
-                }
+                nextBtn.style.display = "inline-block";
+                submitBtn.style.display = "none";
+            }
+            updateProgressBar();
+        }
+
+        function nextPrev(n) {
+            if (n === 1 && !validateForm()) {
+                return false;
             }
 
-            if (!fieldValid) {
-                field.style.backgroundColor = "#ffdddd";
-                valid = false;
-            }
-        });
+            currentTab += n;
+            showTab(currentTab);
+        }
 
-        for (const name in radioGroups) {
-            if (!radioGroups[name].isChecked) {
-                radioGroups[name].elements.forEach(radio => {
-                    if (radio.closest('.form-group')) {
-                        radio.closest('.form-group').style.backgroundColor = "#ffdddd";
+        function validateForm() {
+            let currentSection = formSections[currentTab];
+            let valid = true;
+
+            currentSection.querySelectorAll('.form-group .errorlist').forEach(el => el.remove());
+
+            currentSection.querySelectorAll('input, select').forEach(el => {
+                el.style.backgroundColor = '';
+            });
+
+            // Get all form fields in the current section
+            const fields = currentSection.querySelectorAll('input:required, select:required, input[type="radio"], input[type="checkbox"]');
+
+            let radioGroups = {};
+
+            fields.forEach(field => {
+                let fieldValid = true;
+
+                if (field.type === 'radio') {
+                    if (!radioGroups[field.name]) {
+                        radioGroups[field.name] = { isChecked: false, elements: [] };
                     }
-                });
-                valid = false;
-            }
-        }
-
-        if (currentTab === 0 && valid) {
-            const startDateEl = document.getElementById('id_start_date');
-            const startTimeEl = document.getElementById('id_start_time');
-            const endDateEl = document.getElementById('id_end_date');
-            const endTimeEl = document.getElementById('id_end_time');
-
-            if (startDateEl && endDateEl && startTimeEl && endTimeEl) {
-                const startDateTime = new Date(`${startDateEl.value}T${startTimeEl.value}`);
-                const endDateTime = new Date(`${endDateEl.value}T${endTimeEl.value}`);
-                const now = new Date();
-                now.setSeconds(0, 0);
-
-                if (startDateTime < now) {
-                    alert("Start date and time cannot be in the past!");
-                    startDateEl.style.backgroundColor = "#ffdddd";
-                    startTimeEl.style.backgroundColor = "#ffdddd";
-                    valid = false;
+                    radioGroups[field.name].elements.push(field);
+                    if (field.checked) {
+                        radioGroups[field.name].isChecked = true;
+                    }
+                } else if (field.tagName === 'SELECT' && field.multiple) {
+                    if (field.selectedOptions.length === 0) {
+                        fieldValid = false;
+                    }
+                } else {
+                    if (field.value.trim() === '') {
+                        fieldValid = false;
+                    }
                 }
 
-                if (startDateTime >= endDateTime) {
-                    alert("End date and time must be after Start date and time!");
-                    endDateEl.style.backgroundColor = "#ffdddd";
-                    endTimeEl.style.backgroundColor = "#ffdddd";
+                if (!fieldValid) {
+                    field.style.backgroundColor = "#ffdddd";
+                    valid = false;
+                }
+            });
+
+            for (const name in radioGroups) {
+                if (!radioGroups[name].isChecked) {
+                    radioGroups[name].elements.forEach(radio => {
+                        if (radio.closest('.form-group')) {
+                            radio.closest('.form-group').style.backgroundColor = "#ffdddd";
+                        }
+                    });
                     valid = false;
                 }
             }
+
+            if (currentTab === 0 && valid) {
+                const startDateEl = document.getElementById('id_start_date');
+                const startTimeEl = document.getElementById('id_start_time');
+                const endDateEl = document.getElementById('id_end_date');
+                const endTimeEl = document.getElementById('id_end_time');
+
+                if (startDateEl && endDateEl && startTimeEl && endTimeEl) {
+                    const startDateTime = new Date(`${startDateEl.value}T${startTimeEl.value}`);
+                    const endDateTime = new Date(`${endDateEl.value}T${endTimeEl.value}`);
+                    const now = new Date();
+                    now.setSeconds(0, 0);
+
+                    if (startDateTime < now) {
+                        alert("Start date and time cannot be in the past!");
+                        startDateEl.style.backgroundColor = "#ffdddd";
+                        startTimeEl.style.backgroundColor = "#ffdddd";
+                        valid = false;
+                    }
+
+                    if (startDateTime >= endDateTime) {
+                        alert("End date and time must be after Start date and time!");
+                        endDateEl.style.backgroundColor = "#ffdddd";
+                        endTimeEl.style.backgroundColor = "#ffdddd";
+                        valid = false;
+                    }
+                }
+            }
+
+            if (!valid) {
+                alert("Please fill in all required fields and correct the errors.");
+            }
+
+            return valid;
         }
 
-        if (!valid) {
-            alert("Please fill in all required fields and correct the errors.");
+        function updateProgressBar() {
+            const currentProgress = ((currentTab + 1) / totalSteps) * 100;
+            progressBarFill.style.width = currentProgress + "%";
+            progressLabel.innerText = `${currentTab + 1} of ${totalSteps}`;
         }
-        
-        return valid;
-    }
 
-    function updateProgressBar() {
-        const currentProgress = ((currentTab + 1) / totalSteps) * 100;
-        progressBarFill.style.width = currentProgress + "%";
-        progressLabel.innerText = `${currentTab + 1} of ${totalSteps}`;
-    }
-
-    nextBtn.addEventListener('click', () => nextPrev(1));
-    prevBtn.addEventListener('click', () => nextPrev(-1));
-</script>
+        nextBtn.addEventListener('click', () => nextPrev(1));
+        prevBtn.addEventListener('click', () => nextPrev(-1));
+    </script>
 </body>
+
 </html>

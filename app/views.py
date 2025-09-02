@@ -81,6 +81,7 @@ async def generate_itinerary_view(request):
             Their interests are: {", ".join(cleaned_data['interests']) if cleaned_data['interests'] else "General sightseeing"}.
             The trip starts on {start_date_obj.strftime('%Y-%m-%d')} at {start_time_str} and ends on {end_date_obj.strftime('%Y-%m-%d')} at {cleaned_data['end_time']}.
             The user must end up at {ending_point}.
+            All Cost Should be in the Local currency of the Country.
 
             **DESCRIPTION FORMAT RULES**:
             - Every activity description must be **concise, 3–4 bullet points only**.
