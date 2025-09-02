@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ascendia GO|Plan Your Perfect Trip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --success: #38b000;
+            --warning: #ffaa00;
+            --danger: #ef233c;
+            --dark-1: #0b132b;
+            --dark-2: #1c2541;
+            --dark-3: #3a506b;
+            --light-1: #f8f9fa;
+            --light-2: #e9ecef;
+            --light-3: #dee2e6;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.16), 0 4px 6px rgba(0,0,0,0.23);
+            --shadow-lg: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-1);
+            color: var(--light-2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            margin: 20px;
+            background-color: var(--dark-2);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--dark-3);
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--light-3);
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            flex-grow: 1;
+            height: 8px;
+            background-color: var(--dark-3);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--success);
+            border-radius: 5px;
+            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .progress-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--light-3);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--light-1);
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--light-2);
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--dark-3);
+            border-radius: 0.5rem;
+            background-color: var(--dark-3);
+            color: var(--light-1);
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .radio-group-item, .checkbox-group-item {
+            display: inline-block;
+        }
+
+        .radio-group label, .checkbox-group label {
+            background-color: var(--dark-3);
+            padding: 12px 20px;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            border: 1px solid var(--dark-3);
+            transition: var(--transition);
+            font-weight: 400;
+        }
+
+        .radio-group input[type="radio"],
+        .checkbox-group input[type="checkbox"] {
+            display: none;
+        }
+
+        .radio-group input[type="radio"]:checked + label {
+            background-color: var(--primary);
+            color: var(--light-1);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .checkbox-group input[type="checkbox"]:checked + label {
+            background-color: var(--primary);
+            color: var(--light-1);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .radio-group label:hover, .checkbox-group label:hover {
+            border-color: var(--primary-light);
+        }
+
+        select[multiple] {
+            height: auto;
+            min-height: 150px;
+        }
+
+        select[multiple] option {
+            padding: 10px;
+            background-color: var(--dark-3);
+            color: var(--light-2);
+        }
+        
+        select[multiple] option:checked {
+            background-color: var(--primary);
+            color: var(--light-1);
+        }
+        
+        .form-navigation {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 40px;
+        }
+
+        .form-navigation button {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .form-navigation button:hover:not(:disabled) {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-navigation button:disabled {
+            background-color: var(--dark-3);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #submitBtn {
+            background-color: var(--success);
+        }
+
+        #submitBtn:hover:not(:disabled) {
+            background-color: #2b8e00;
+        }
+
+        .errorlist {
+            color: var(--danger);
+            list-style-type: none;
+            padding: 0;
+            margin-top: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .form-group.invalid input, .form-group.invalid select {
+            border-color: var(--danger);
+        }
+        
+        .form-group.invalid .error-message {
+            display: block;
+        }
+        
+        /* Custom Scrollbar for form elements */
+        select[multiple]::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        select[multiple]::-webkit-scrollbar-track {
+            background: var(--dark-2);
+        }
+        
+        select[multiple]::-webkit-scrollbar-thumb {
+            background: var(--dark-3);
+            border-radius: 4px;
+        }
+        
+        select[multiple]::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ascendia GO!</h1>
+        <p class="subtitle">Just a few questions to get started on your dream itinerary.</p>
+
+        <div class="progress-bar-container">
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+            <div class="progress-label" id="progressLabel">1 of 3</div>
+        </div>
+
+        <form method="post" id="itineraryForm">
+            {% csrf_token %}
+
+            <div class="form-section active" id="step1">
+                <h2>Step 1: Where & When?</h2>
+                <div class="form-group">
+                    {{ form.city.errors }}
+                    <label for="{{ form.city.id_for_label }}">Destination City:</label>
+                    {{ form.city }}
+                </div>
+                <div class="form-group">
+                    {{ form.start_date.errors }}
+                    <label for="{{ form.start_date.id_for_label }}">Start Date:</label>
+                    {{ form.start_date }}
+                </div>
+                <div class="form-group">
+                    {{ form.start_time.errors }}
+                    <label for="{{ form.start_time.id_for_label }}">Start Time of Day:</label>
+                    {{ form.start_time }}
+                </div>
+                <div class="form-group">
+                    {{ form.end_date.errors }}
+                    <label for="{{ form.end_date.id_for_label }}">End Date:</label>
+                    {{ form.end_date }}
+                </div>
+                <div class="form-group">
+                    {{ form.end_time.errors }}
+                    <label for="{{ form.end_time.id_for_label }}">End Time of Day:</label>
+                    {{ form.end_time }}
+                </div>
+                <div class="form-group">
+                    {{ form.starting_point.errors }}
+                    <label for="{{ form.starting_point.id_for_label }}">Starting Point (optional):</label>
+                    {{ form.starting_point }}
+                </div>
+                <div class="form-group">
+                    {{ form.ending_point.errors }}
+                    <label for="{{ form.ending_point.id_for_label }}">Ending Point (optional):</label>
+                    {{ form.ending_point }}
+                </div>
+            </div>
+
+            <div class="form-section" id="step2">
+                <h2>Step 2: Who & How?</h2>
+                <div class="form-group">
+                    {{ form.traveler_type.errors }}
+                    <label for="{{ form.traveler_type.id_for_label }}">Who are you traveling with?</label>
+                    {{ form.traveler_type }}
+                </div>
+                <div class="form-group">
+                    {{ form.budget.errors }}
+                    <label>Budget Level:</label>
+                    <div class="radio-group">
+                        {% for radio in form.budget %}
+                            <div class="radio-group-item">
+                                {{ radio }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section" id="step3">
+                <h2>Step 3: Your Preferences</h2>
+                <div class="form-group">
+                    {{ form.food_preferences.errors }}
+                    <label for="{{ form.food_preferences.id_for_label }}">Food Preferences:</label>
+                    {{ form.food_preferences }}
+                </div>
+                <div class="form-group">
+                    {{ form.interests.errors }}
+                    <label for="{{ form.interests.id_for_label }}">Interests:</label>
+                    {{ form.interests }}
+                </div>
+            </div>
+
+            <div class="form-navigation">
+                <button type="button" id="prevBtn" disabled>Previous</button>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn" style="display: none;">Generate Itinerary</button>
+            </div>
+        </form>
+    </div>
+
+<script>
+    let currentTab = 0;
+    const formSections = document.getElementsByClassName("form-section");
+    const totalSteps = formSections.length;
+    const progressBarFill = document.getElementById("progressBarFill");
+    const progressLabel = document.getElementById("progressLabel");
+    const nextBtn = document.getElementById("nextBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const submitBtn = document.getElementById("submitBtn");
+
+    showTab(currentTab);
+
+    function showTab(n) {
+        if (n >= totalSteps || n < 0) return;
+        
+        for (let i = 0; i < formSections.length; i++) {
+            formSections[i].classList.remove('active');
+        }
+        formSections[n].classList.add('active');
+
+        prevBtn.disabled = (n === 0);
+        
+        if (n === (totalSteps - 1)) {
+            nextBtn.style.display = "none";
+            submitBtn.style.display = "inline-block";
+        } else {
+            nextBtn.style.display = "inline-block";
+            submitBtn.style.display = "none";
+        }
+        updateProgressBar();
+    }
+
+    function nextPrev(n) {
+        if (n === 1 && !validateForm()) {
+            return false;
+        }
+
+        currentTab += n;
+        showTab(currentTab);
+    }
+
+    function validateForm() {
+        let currentSection = formSections[currentTab];
+        let valid = true;
+        
+        currentSection.querySelectorAll('.form-group .errorlist').forEach(el => el.remove());
+
+        currentSection.querySelectorAll('input, select').forEach(el => {
+            el.style.backgroundColor = '';
+        });
+
+        // Get all form fields in the current section
+        const fields = currentSection.querySelectorAll('input:required, select:required, input[type="radio"], input[type="checkbox"]');
+        
+        let radioGroups = {};
+
+        fields.forEach(field => {
+            let fieldValid = true;
+
+            if (field.type === 'radio') {
+                if (!radioGroups[field.name]) {
+                    radioGroups[field.name] = { isChecked: false, elements: [] };
+                }
+                radioGroups[field.name].elements.push(field);
+                if (field.checked) {
+                    radioGroups[field.name].isChecked = true;
+                }
+            } else if (field.tagName === 'SELECT' && field.multiple) {
+                if (field.selectedOptions.length === 0) {
+                    fieldValid = false;
+                }
+            } else {
+                if (field.value.trim() === '') {
+                    fieldValid = false;
+                }
+            }
+
+            if (!fieldValid) {
+                field.style.backgroundColor = "#ffdddd";
+                valid = false;
+            }
+        });
+
+        for (const name in radioGroups) {
+            if (!radioGroups[name].isChecked) {
+                radioGroups[name].elements.forEach(radio => {
+                    if (radio.closest('.form-group')) {
+                        radio.closest('.form-group').style.backgroundColor = "#ffdddd";
+                    }
+                });
+                valid = false;
+            }
+        }
+
+        if (currentTab === 0 && valid) {
+            const startDateEl = document.getElementById('id_start_date');
+            const startTimeEl = document.getElementById('id_start_time');
+            const endDateEl = document.getElementById('id_end_date');
+            const endTimeEl = document.getElementById('id_end_time');
+
+            if (startDateEl && endDateEl && startTimeEl && endTimeEl) {
+                const startDateTime = new Date(`${startDateEl.value}T${startTimeEl.value}`);
+                const endDateTime = new Date(`${endDateEl.value}T${endTimeEl.value}`);
+                const now = new Date();
+                now.setSeconds(0, 0);
+
+                if (startDateTime < now) {
+                    alert("Start date and time cannot be in the past!");
+                    startDateEl.style.backgroundColor = "#ffdddd";
+                    startTimeEl.style.backgroundColor = "#ffdddd";
+                    valid = false;
+                }
+
+                if (startDateTime >= endDateTime) {
+                    alert("End date and time must be after Start date and time!");
+                    endDateEl.style.backgroundColor = "#ffdddd";
+                    endTimeEl.style.backgroundColor = "#ffdddd";
+                    valid = false;
+                }
+            }
+        }
+
+        if (!valid) {
+            alert("Please fill in all required fields and correct the errors.");
+        }
+        
+        return valid;
+    }
+
+    function updateProgressBar() {
+        const currentProgress = ((currentTab + 1) / totalSteps) * 100;
+        progressBarFill.style.width = currentProgress + "%";
+        progressLabel.innerText = `${currentTab + 1} of ${totalSteps}`;
+    }
+
+    nextBtn.addEventListener('click', () => nextPrev(1));
+    prevBtn.addEventListener('click', () => nextPrev(-1));
+</script>
+</body>
+</html>

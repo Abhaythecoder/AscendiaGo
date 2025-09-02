@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Detailed Itinerary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --success: #38b000;
+            --warning: #ffaa00;
+            --danger: #ef233c;
+            --dark-1: #0b132b;
+            --dark-2: #1c2541;
+            --dark-3: #3a506b;
+            --light-1: #f8f9fa;
+            --light-2: #e9ecef;
+            --light-3: #dee2e6;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.16), 0 4px 6px rgba(0,0,0,0.23);
+            --shadow-lg: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--dark-1);
+            color: var(--light-2);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: grid;
+            grid-template-areas: "sidebar main";
+            grid-template-columns: 300px 1fr;
+            width: 100%;
+        }
+
+        .sidebar {
+            grid-area: sidebar;
+            background-color: var(--dark-2);
+            padding: 1.5rem;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            grid-area: main;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+        }
+
+        .content-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .content-title {
+            font-size: 1.5rem;
+            color: var(--light-1);
+            font-weight: 600;
+        }
+
+        .day-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:disabled {
+            background-color: var(--dark-3);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .trip-summary {
+            background-color: var(--dark-3);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .trip-summary h3 {
+            color: var(--light-1);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .trip-summary h3 i {
+            color: var(--primary);
+        }
+
+        .trip-detail {
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .trip-detail-label {
+            color: var(--light-3);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .trip-detail-value {
+            color: var(--light-1);
+            font-weight: 500;
+        }
+
+        .day-navigation {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            flex-grow: 1;
+        }
+
+        .day-nav-item {
+            background-color: var(--dark-3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .day-nav-item:hover {
+            background-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .day-nav-item.active {
+            background-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .day-nav-item .day-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .day-nav-item .day-name {
+            font-weight: 600;
+            color: var(--light-1);
+            font-size: 0.95rem;
+        }
+
+        .day-nav-item .day-date {
+            font-size: 0.8rem;
+            color: var(--light-3);
+        }
+
+        .day-nav-item.active .day-date {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .content-body {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .timeline-container {
+            position: relative;
+            height: 100%;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .timeline-day {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s;
+            overflow-y: auto;
+        }
+
+        .timeline-day.active {
+            position: relative;
+            opacity: 1;
+            visibility: visible;
+            height: auto;
+            min-height: 100%;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 10px;
+            width: 2px;
+            background-color: var(--dark-3);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            z-index: 1;
+        }
+
+        .timeline-card {
+            background-color: var(--dark-3);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .timeline-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .timeline-card.visit { border-left-color: var(--primary); }
+        .timeline-card.travel { border-left-color: var(--success); }
+        .timeline-card.highlighted {
+            border-left-width: 4px;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+        }
+
+        .timeline-time {
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timeline-type {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            color: var(--light-2);
+            margin-bottom: 0.75rem;
+        }
+
+        .timeline-type.visit {
+            background-color: rgba(67, 97, 238, 0.2);
+            color: var(--primary-light);
+        }
+
+        .timeline-type.travel {
+            background-color: rgba(56, 176, 0, 0.2);
+            color: #6fffc9;
+        }
+
+        .timeline-title {
+            font-size: 1.1rem;
+            color: var(--light-1);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .timeline-details {
+            font-size: 0.9rem;
+            color: var(--light-3);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-details strong {
+            color: var(--light-2);
+            font-weight: 500;
+            min-width: 80px;
+            display: inline-block;
+        }
+
+        .map-panel {
+            border-left: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #map {
+            flex: 1;
+            width: 100%;
+            min-height: 400px;
+            background-color: var(--dark-2);
+        }
+
+        @media (max-width: 992px) {
+            body {
+                grid-template-areas: "sidebar" "main";
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+
+            .content-body {
+                grid-template-columns: 1fr;
+                grid-template-rows: 400px 1fr;
+            }
+
+            .map-panel {
+                border-left: none;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                order: 1;
+            }
+
+            .timeline-container {
+                order: 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .day-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--dark-3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Leaflet Customizations */
+        .leaflet-container {
+            background-color: var(--dark-2) !important;
+        }
+
+        .leaflet-popup-content {
+            color: var(--dark-1);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .custom-marker .marker-pin {
+            width: 25px;
+            height: 25px;
+            border-radius: 50% 50% 50% 0;
+            background: var(--primary);
+            position: absolute;
+            transform: rotate(-45deg);
+            left: 50%;
+            top: 50%;
+            margin: -12.5px 0 0 -12.5px;
+            animation: bounce 0.8s infinite;
+            border: 2px solid var(--dark-1);
+        }
+
+        .custom-marker .marker-pin.travel {
+            background: var(--success);
+        }
+
+        .custom-marker .marker-pin.highlight {
+            background: var(--danger);
+            animation: bounce-highlight 0.8s infinite;
+        }
+
+        @keyframes bounce {
+            0% { transform: rotate(-45deg) scale(0.8); }
+            50% { transform: rotate(-45deg) scale(1.1); }
+            100% { transform: rotate(-45deg) scale(0.8); }
+        }
+
+        @keyframes bounce-highlight {
+            0% { transform: rotate(-45deg) scale(1); }
+            50% { transform: rotate(-45deg) scale(1.3); }
+            100% { transform: rotate(-45deg) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <script id="itinerary_data" type="application/json">
+        {{ itinerary_json|safe }}
+    </script>
+
+    <div class="sidebar">
+        <div class="trip-summary">
+            <h3><i class="fa-solid fa-plane-departure"></i> Trip to {{ form_data.city|default:"Destination" }}</h3>
+            <div class="trip-detail">
+                <span class="trip-detail-label">Dates:</span>
+                <span class="trip-detail-value">
+                    {% if itinerary_data and itinerary_data|length > 0 %}
+                    {{ itinerary_data.0.date }} -
+                    {% with last_item=itinerary_data|last %}
+                    {{ last_item.date }}
+                    {% endwith %}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </span>
+            </div>
+            <div class="trip-detail">
+                <span class="trip-detail-label">Duration:</span>
+                <span class="trip-detail-value">
+                     {% if itinerary_data and itinerary_data|length > 0 %}
+                         {{ itinerary_data|length }} Day(s)
+                     {% else %}
+                         N/A
+                     {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="day-navigation">
+            {% for day_plan in itinerary_data %}
+            <div class="day-nav-item {% if forloop.first %}active{% endif %}" data-day-index="{{ forloop.counter0 }}">
+                <div class="day-info">
+                    <span class="day-name">{{ day_plan.day }}</span>
+                    <span class="day-date">{{ day_plan.date }}</span>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-header">
+
+            <h1 class="content-title">Ascendia GO</h1>
+            <div class="day-controls">
+                <button id="prev-day" class="btn">
+                    <i class="fa-solid fa-chevron-left"></i> Previous Day
+                </button>
+                <button id="next-day" class="btn">
+                    Next Day <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div class="timeline-container">
+                {% for day_plan in itinerary_data %}
+                <div class="timeline-day {% if forloop.first %}active{% endif %}" data-day-index="{{ forloop.counter0 }}">
+                    <div class="timeline">
+                        {% for activity in day_plan.activities %}
+                        <div class="timeline-item">
+                            <div class="timeline-card {{ activity.type|lower }}" data-activity-id="{{ activity.id }}">
+                                <div class="timeline-time">{{ activity.time_slot }}</div>
+                                <div class="timeline-type {{ activity.type|lower }}">{{ activity.type }}</div>
+                                <h4 class="timeline-title">{{ activity.description }}</h4>
+                                <div class="timeline-details">
+                                    <strong>Location:</strong>
+                                    {% if activity.type == 'Travel' %}
+                                        {{ activity.end_point_location|default:"N/A" }}
+                                    {% else %}
+                                        {{ activity.location_name|default:"N/A" }}
+                                    {% endif %}
+                                </div>
+                                {% if activity.transport_mode_details %}
+                                <div class="timeline-details">
+                                    <strong>Transport:</strong> {{ activity.transport_mode_details }}
+                                </div>
+                                {% endif %}
+                                {% if activity.cost_estimate %}
+                                <div class="timeline-details">
+                                    <strong>Cost:</strong> {{ activity.cost_estimate }}
+                                </div>
+                                {% endif %}
+                                {% if activity.restaurant_suggestion %}
+                                <div class="timeline-details">
+                                    <strong>Eats:</strong> {{ activity.restaurant_suggestion }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="map-panel">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dayNavItems = document.querySelectorAll('.day-nav-item');
+            const timelineDays = document.querySelectorAll('.timeline-day');
+            const prevDayBtn = document.getElementById('prev-day');
+            const nextDayBtn = document.getElementById('next-day');
+            const mapContainer = document.getElementById('map');
+
+            let itineraryData = [];
+            try {
+                const itineraryElement = document.getElementById('itinerary_data');
+                if (itineraryElement && itineraryElement.textContent.trim()) {
+                    const cleanJsonString = itineraryElement.textContent.replace(/[\u00a0\r\n]/g, '').trim();
+                    itineraryData = JSON.parse(cleanJsonString);
+                }
+            } catch (error) {
+                console.error("Error parsing itinerary data:", error);
+                return;
+            }
+
+            if (!itineraryData || itineraryData.length === 0) {
+                 console.warn("Itinerary data is empty or invalid. Map and timeline will not be populated.");
+                 return;
+            }
+
+            let currentDayIndex = 0;
+            let map;
+            let dayLayers = [];
+            let routeControls = [];
+
+            const iconOptions = {
+                visit: { className: 'custom-marker visit-marker', html: '<div class="marker-pin"></div>' },
+                travel: { className: 'custom-marker travel-marker', html: '<div class="marker-pin travel"></div>' },
+                highlight: { className: 'custom-marker highlight-marker', html: '<div class="marker-pin highlight"></div>' }
+            };
+
+            function createMarkerIcon(type) {
+                const options = iconOptions[type];
+                return L.divIcon({
+                    className: options.className,
+                    html: options.html,
+                    iconSize: [30, 42],
+                    iconAnchor: [15, 42],
+                    popupAnchor: [0, -36]
+                });
+            }
+
+            function initMap() {
+                if (map) {
+                    map.remove();
+                }
+
+                let initialCoords = null;
+
+                if (itineraryData && itineraryData.length > 0) {
+                    for (const day of itineraryData) {
+                        for (const activity of day.activities) {
+                            let lat, lon;
+                            if (activity.type === 'Visit') {
+                                lat = parseFloat(activity.latitude || activity.start_point_lat || activity.lat);
+                                lon = parseFloat(activity.longitude || activity.start_point_lon || activity.lng);
+                            } else if (activity.type === 'Travel') {
+                                lat = parseFloat(activity.start_point_lat || activity.latitude || activity.lat);
+                                lon = parseFloat(activity.start_point_lon || activity.longitude || activity.lng);
+                            }
+
+                            if (lat != null && lon != null && !isNaN(lat) && !isNaN(lon)) {
+                                initialCoords = [lat, lon];
+                                break;
+                            }
+                        }
+                        if (initialCoords) {
+                            break;
+                        }
+                    }
+                }
+                
+                const view = initialCoords ? initialCoords : [20, 0];
+                const zoom = initialCoords ? 13 : 2;
+                
+                map = L.map(mapContainer, {
+                    zoomControl: true,
+                    preferCanvas: true
+                }).setView(view, zoom);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19
+                }).addTo(map);
+
+                setTimeout(() => map.invalidateSize(), 100);
+                loadAllDayLayers();
+            }
+
+            function loadAllDayLayers() {
+                if (!itineraryData.length) {
+                    console.warn("No itinerary data available to load map layers.");
+                    return;
+                }
+
+                dayLayers = [];
+                routeControls = [];
+
+                itineraryData.forEach((day, dayIndex) => {
+                    const dayMarkers = [];
+                    day.activities.forEach(activity => {
+                        if (activity.type === 'Visit') {
+                            const lat = parseFloat(activity.latitude || activity.start_point_lat || activity.lat);
+                            const lng = parseFloat(activity.longitude || activity.start_point_lon || activity.lng);
+
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                const marker = L.marker([lat, lng], {
+                                    icon: createMarkerIcon('visit'),
+                                    activityId: activity.id,
+                                    activityType: 'visit'
+                                }).bindPopup(`<div class="map-popup">${activity.location_name || 'Visit'}</div>`);
+
+                                marker.on('click', () => {
+                                    changeDay(dayIndex, false);
+                                    highlightActivity(activity.id);
+                                });
+                                dayMarkers.push(marker);
+                            }
+                        } else if (activity.type === 'Travel') {
+                            const startLat = parseFloat(activity.start_point_lat || activity.latitude || activity.lat);
+                            const startLng = parseFloat(activity.start_point_lon || activity.longitude || activity.lng);
+                            const endLat = parseFloat(activity.end_point_lat || activity.latitude || activity.lat);
+                            const endLng = parseFloat(activity.end_point_lon || activity.longitude || activity.lng);
+
+                            if (!isNaN(startLat) && !isNaN(startLng) && !isNaN(endLat) && !isNaN(endLng)) {
+                                const startMarker = L.marker([startLat, startLng], {
+                                    icon: createMarkerIcon('travel'),
+                                    activityId: `${activity.id}-start`,
+                                    activityType: 'travel'
+                                }).bindPopup(`<div class="map-popup">Start: ${activity.start_point_location || 'Start'}</div>`);
+                                
+                                const endMarker = L.marker([endLat, endLng], {
+                                    icon: createMarkerIcon('travel'),
+                                    activityId: `${activity.id}-end`,
+                                    activityType: 'travel'
+                                }).bindPopup(`<div class="map-popup">End: ${activity.end_point_location || 'End'}</div>`);
+
+                                startMarker.on('click', () => {
+                                    changeDay(dayIndex, false);
+                                    highlightActivity(activity.id);
+                                });
+                                endMarker.on('click', () => {
+                                    changeDay(dayIndex, false);
+                                    highlightActivity(activity.id);
+                                });
+                                dayMarkers.push(startMarker, endMarker);
+
+                                const routeControl = L.Routing.control({
+                                    waypoints: [L.latLng(startLat, startLng), L.latLng(endLat, endLng)],
+                                    routeWhileDragging: false,
+                                    show: false,
+                                    addWaypoints: false,
+                                    lineOptions: { styles: [{ color: 'var(--success)', weight: 4, opacity: 0.7 }] },
+                                    createMarker: () => null,
+                                    router: L.Routing.osrmv1({
+                                        serviceUrl: 'https://router.project-osrm.org/route/v1'
+                                    })
+                                });
+
+                                const routeInfo = { id: activity.id, control: routeControl, dayIndex: dayIndex, line: null };
+                                routeControl.on('routesfound', function(e) {
+                                    if (e.routes && e.routes.length > 0 && e.routes[0].line) {
+                                      e.routes[0].line.options.activityId = activity.id;
+                                      routeInfo.line = e.routes[0].line;
+                                    }
+                                });
+                                routeControls.push(routeInfo);
+                            }
+                        }
+                    });
+                    dayLayers[dayIndex] = L.featureGroup(dayMarkers);
+                });
+                updateMapDisplay(currentDayIndex);
+            }
+
+            function updateMapDisplay(dayIndex) {
+                 if (!map) return;
+                 map.eachLayer(layer => {
+                     if (!layer._url) {
+                         map.removeLayer(layer);
+                     }
+                 });
+
+                 const currentDayLayerGroup = dayLayers[dayIndex];
+                 const currentDayRoutes = routeControls.filter(rc => rc.dayIndex === dayIndex);
+
+                 if (currentDayLayerGroup && currentDayLayerGroup.getLayers().length > 0) {
+                     currentDayLayerGroup.addTo(map);
+                     currentDayRoutes.forEach(rc => {
+                         rc.control.addTo(map);
+                     });
+
+                     const bounds = currentDayLayerGroup.getBounds();
+                     if (bounds.isValid()) {
+                         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+                     }
+                 } else {
+                     const firstDayWithCoords = itineraryData.find(d => d.activities.some(a => a.latitude || a.start_point_lat));
+                     if (firstDayWithCoords) {
+                         const firstActivity = firstDayWithCoords.activities.find(a => a.latitude || a.start_point_lat);
+                         const lat = parseFloat(firstActivity.latitude || firstActivity.start_point_lat);
+                         const lon = parseFloat(firstActivity.longitude || firstActivity.start_point_lon);
+                         if(!isNaN(lat) && !isNaN(lon)) map.setView([lat, lon], 12);
+                     }
+                 }
+                 setTimeout(() => map.invalidateSize(), 100);
+            }
+
+            function highlightActivity(activityId) {
+                document.querySelectorAll('.timeline-card').forEach(card => card.classList.remove('highlighted'));
+                
+                const currentDayLayerGroup = dayLayers[currentDayIndex];
+                if (!currentDayLayerGroup) return;
+
+                currentDayLayerGroup.eachLayer(marker => {
+                    if (marker.options.activityType === 'travel') {
+                         marker.setIcon(createMarkerIcon('travel'));
+                    } else {
+                         marker.setIcon(createMarkerIcon('visit'));
+                    }
+                    marker.closePopup();
+                });
+                
+                routeControls.filter(rc => rc.dayIndex === currentDayIndex).forEach(rc => {
+                    if (rc.line) {
+                        rc.line.setStyle({ color: 'var(--success)', weight: 4, opacity: 0.7 });
+                    }
+                });
+                
+                const timelineCard = document.querySelector(`.timeline-card[data-activity-id="${activityId}"]`);
+                if (timelineCard) {
+                    timelineCard.classList.add('highlighted');
+                    timelineCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                currentDayLayerGroup.eachLayer(marker => {
+                    if (marker.options.activityId && String(marker.options.activityId).startsWith(activityId)) {
+                        marker.setIcon(createMarkerIcon('highlight'));
+                        marker.openPopup();
+                    }
+                });
+                
+                const routeToHighlight = routeControls.find(rc => rc.id === activityId && rc.dayIndex === currentDayIndex);
+                if (routeToHighlight && routeToHighlight.line) {
+                     routeToHighlight.line.setStyle({ color: 'var(--accent)', weight: 6, opacity: 1 });
+                }
+            }
+
+            function changeDay(newIndex, doHighlight = true) {
+                if (newIndex < 0 || newIndex >= dayNavItems.length) return;
+
+                if (dayNavItems[currentDayIndex]) dayNavItems[currentDayIndex].classList.remove('active');
+                if (timelineDays[currentDayIndex]) timelineDays[currentDayIndex].classList.remove('active');
+
+                currentDayIndex = newIndex;
+
+                if (dayNavItems[currentDayIndex]) dayNavItems[currentDayIndex].classList.add('active');
+                if (timelineDays[currentDayIndex]) timelineDays[currentDayIndex].classList.add('active');
+                
+                updateMapDisplay(currentDayIndex);
+
+                prevDayBtn.disabled = newIndex === 0;
+                nextDayBtn.disabled = newIndex === dayNavItems.length - 1;
+
+                if (doHighlight) {
+                    const firstActivityCard = timelineDays[currentDayIndex] ? timelineDays[currentDayIndex].querySelector('.timeline-card') : null;
+                    if (firstActivityCard) {
+                        highlightActivity(firstActivityCard.dataset.activityId);
+                    }
+                }
+            }
+
+            dayNavItems.forEach((item, index) => {
+                item.addEventListener('click', () => changeDay(index));
+            });
+
+            prevDayBtn.addEventListener('click', () => changeDay(currentDayIndex - 1));
+            nextDayBtn.addEventListener('click', () => changeDay(currentDayIndex + 1));
+
+            document.querySelectorAll('.timeline-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const activityId = this.dataset.activityId;
+                    highlightActivity(activityId);
+                });
+            });
+
+            initMap();
+            prevDayBtn.disabled = currentDayIndex === 0;
+            nextDayBtn.disabled = currentDayIndex >= dayNavItems.length - 1;
+
+            if (timelineDays.length > 0) {
+                 const firstActivityCard = timelineDays[0].querySelector('.timeline-card');
+                 if (firstActivityCard) {
+                     highlightActivity(firstActivityCard.dataset.activityId);
+                 }
+            }
+
+        });
+    </script>
+</body>
+</html>
+
