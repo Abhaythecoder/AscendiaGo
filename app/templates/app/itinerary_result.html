@@ -1,298 +1,493 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Detailed Itinerary</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
     <style>
-    /* =========================================================
-     * "Soft UI / Neumorphic" Theme for Itinerary Layout
-     * =========================================================
-    */
-    :root {
-        --background: #E6EDF7;
-        --primary: #5B86E5;
-        --primary-gradient: linear-gradient(135deg, #5B86E5, #36D1DC);
-        --success: #28a745;
-        --danger: #ef233c;
-        --text-primary: #2D3748;
-        --text-secondary: #718096;
-        --light-shadow: rgba(255, 255, 255, 0.8);
-        --dark-shadow: rgba(190, 205, 226, 0.7);
-        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
+        /* =========================================================
+        * "Soft UI / Neumorphic" Theme for Itinerary Layout
+        * =========================================================
+        */
+        :root {
+            --background: #E6EDF7;
+            --primary: #5B86E5;
+            --primary-gradient: linear-gradient(135deg, #5B86E5, #36D1DC);
+            --success: #28a745;
+            --danger: #ef233c;
+            --text-primary: #2D3748;
+            --text-secondary: #718096;
+            --light-shadow: rgba(255, 255, 255, 0.8);
+            --dark-shadow: rgba(190, 205, 226, 0.7);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
 
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    body {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        color: var(--text-secondary);
-        line-height: 1.6;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #E6EDF7 0%, #F5F9FF 100%);
-        display: grid;
-        grid-template-areas: "sidebar main";
-        grid-template-columns: 320px 1fr;
-        width: 100%;
-        overflow-x: hidden;
-    }
-
-    .sidebar {
-        grid-area: sidebar;
-        padding: 2rem;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
-
-    .main-content {
-        grid-area: main;
-        display: grid;
-        grid-template-rows: auto 1fr;
-        height: 100vh;
-        padding: 2rem 2rem 2rem 0;
-    }
-
-    .content-header {
-        padding-bottom: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .content-title {
-        font-size: 1.75rem;
-        color: var(--text-primary);
-        font-weight: 700;
-    }
-
-    .day-controls {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .btn {
-        padding: 0.8rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        background: var(--background);
-        color: var(--text-secondary);
-        box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
-    }
-
-    .btn:hover:not(:disabled) {
-        color: var(--primary);
-        transform: translateY(-2px);
-        box-shadow: 7px 7px 14px var(--dark-shadow), -7px -7px 14px var(--light-shadow);
-    }
-
-    .btn:active:not(:disabled) {
-        transform: translateY(1px);
-        box-shadow: inset 4px 4px 8px var(--dark-shadow), inset -4px -4px 8px var(--light-shadow);
-    }
-    
-    .btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-
-    .trip-summary {
-        background: var(--background);
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 7px 7px 14px var(--dark-shadow), -7px -7px 14px var(--light-shadow);
-    }
-
-    .trip-summary h3 {
-        color: var(--text-primary);
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .trip-summary h3 i {
-        color: var(--primary);
-    }
-
-    .trip-detail-label {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-    }
-
-    .trip-detail-value {
-        color: var(--text-primary);
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-
-    .day-navigation {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        flex-grow: 1;
-    }
-
-    .day-nav-item {
-        padding: 1rem 1.5rem;
-        background: var(--background);
-        border-radius: 12px;
-        cursor: pointer;
-        transition: var(--transition);
-        box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
-    }
-
-    .day-nav-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 7px 7px 14px var(--dark-shadow), -7px -7px 14px var(--light-shadow);
-    }
-
-    .day-nav-item.active {
-        box-shadow: inset 4px 4px 8px var(--dark-shadow), inset -4px -4px 8px var(--light-shadow);
-        color: var(--primary);
-    }
-
-    .day-nav-item.active .day-name { color: var(--primary); }
-    .day-nav-item .day-name { font-weight: 600; color: var(--text-primary); }
-    .day-nav-item .day-date { font-size: 0.85rem; }
-
-    .content-body {
-        display: grid;
-        grid-template-columns: 1fr 400px;
-        height: 100%;
-        overflow: hidden;
-        gap: 2rem;
-    }
-
-    .timeline-container, .map-panel {
-        height: 100%;
-        overflow: hidden;
-        border-radius: 20px;
-        padding: 12px;
-        background: var(--background);
-        box-shadow: inset 7px 7px 14px var(--dark-shadow), inset -7px -7px 14px var(--light-shadow);
-    }
-    
-    .timeline-container > .scroll-content {
-        height: 100%;
-        overflow-y: auto;
-        padding: 1.5rem;
-    }
-
-    .timeline-day { display: none; }
-    .timeline-day.active { display: block; }
-    
-    .timeline {
-        position: relative;
-        padding-left: 20px;
-        border-left: 2px solid rgba(190, 205, 226, 0.5);
-    }
-
-    .timeline-item {
-        position: relative;
-        margin-bottom: 1.5rem;
-        padding-left: 1.5rem;
-    }
-
-    .timeline-item::before {
-        content: '';
-        position: absolute;
-        top: 8px;
-        left: -29px;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: var(--background);
-        border: 4px solid var(--primary);
-        z-index: 1;
-    }
-
-    .timeline-card {
-        background: var(--background);
-        border-radius: 16px;
-        padding: 1.25rem;
-        cursor: pointer;
-        transition: var(--transition);
-        box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
-    }
-    
-    .timeline-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 7px 7px 14px var(--dark-shadow), -7px -7px 14px var(--light-shadow);
-    }
-    
-    .timeline-card.highlighted {
-        box-shadow: 0 0 0 3px var(--primary), 7px 7px 14px var(--dark-shadow);
-    }
-
-    .timeline-time { color: var(--primary); font-weight: 600; }
-    .timeline-title { color: var(--text-primary); font-weight: 600; font-size: 1.1rem; }
-
-    #map {
-        width: 100%;
-        height: 100%;
-        border-radius: 12px;
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 12px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb {
-        background: var(--background);
-        border-radius: 10px;
-        border: 3px solid var(--background);
-        box-shadow: inset 2px 2px 4px var(--dark-shadow), inset -2px -2px 4px var(--light-shadow);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 1200px) {
-        .content-body { grid-template-columns: 1fr; grid-template-rows: auto 400px; }
-    }
-
-    @media (max-width: 992px) {
         body {
-            grid-template-areas: "main";
-            grid-template-columns: 1fr;
-            height: auto;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #E6EDF7 0%, #F5F9FF 100%);
+            display: grid;
+            grid-template-areas: "sidebar main";
+            grid-template-columns: 320px 1fr;
+            /* Slightly wider sidebar for better padding */
+            width: 100%;
+            overflow-x: hidden;
         }
-        .main-content { height: auto; padding: 1.5rem; }
-        .sidebar {
-            display: none; /* Recommended to toggle with JS */
-        }
-        .content-body { grid-template-rows: auto 350px; padding: 0; gap: 1.5rem; }
-    }
 
-    @media (max-width: 768px) {
-        .content-header {
+        .sidebar {
+            grid-area: sidebar;
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .main-content {
+            grid-area: main;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+            padding: 2rem 2rem 2rem 0;
+        }
+
+        .content-header {
+            padding-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .content-title {
+            font-size: 1.75rem;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .day-controls {
+            display: flex;
             gap: 1rem;
         }
-        .day-controls { width: 100%; justify-content: space-between; }
-    }
-</style>
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--background);
+            color: var(--text-secondary);
+            box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
+        }
+
+        .btn:hover:not(:disabled) {
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 7px 7px 14px var(--dark-shadow), -7px -7px 14px var(--light-shadow);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(1px);
+            box-shadow: inset 4px 4px 8px var(--dark-shadow), inset -4px -4px 8px var(--light-shadow);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .trip-summary {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 7px 7px 14px var(--dark-shadow), -7px -7px 14px var(--light-shadow);
+        }
+
+        .trip-summary h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .trip-summary h3 i {
+            color: var(--primary);
+        }
+
+        .trip-detail-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .trip-detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .day-navigation {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            flex-grow: 1;
+        }
+
+        .day-nav-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: var(--background);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
+        }
+
+        .day-nav-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 7px 7px 14px var(--dark-shadow), -7px -7px 14px var(--light-shadow);
+        }
+
+        .day-nav-item.active {
+            box-shadow: inset 4px 4px 8px var(--dark-shadow), inset -4px -4px 8px var(--light-shadow);
+            color: var(--primary);
+        }
+
+        .day-nav-item.active .day-name {
+            color: var(--primary);
+        }
+
+        .day-nav-item .day-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .day-nav-item .day-date {
+            font-size: 0.85rem;
+        }
+
+        .content-body {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            height: 100%;
+            overflow: hidden;
+            gap: 2rem;
+        }
+
+        .timeline-container,
+        .map-panel {
+            height: 100%;
+            overflow: hidden;
+            border-radius: 20px;
+            padding: 12px;
+            background: var(--background);
+            box-shadow: inset 7px 7px 14px var(--dark-shadow), inset -7px -7px 14px var(--light-shadow);
+        }
+
+        .timeline-container>.scroll-content {
+            height: 100%;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .timeline-day {
+            display: none;
+        }
+
+        .timeline-day.active {
+            display: block;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+            border-left: 2px solid rgba(190, 205, 226, 0.5);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: -29px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--background);
+            border: 4px solid var(--primary);
+            z-index: 1;
+        }
+
+        .timeline-card {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
+        }
+
+        .timeline-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 7px 7px 14px var(--dark-shadow), -7px -7px 14px var(--light-shadow);
+        }
+
+        .timeline-card.highlighted {
+            box-shadow: 0 0 0 3px var(--primary), 7px 7px 14px var(--dark-shadow);
+        }
+
+        .timeline-time {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .timeline-title {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--background);
+            border-radius: 10px;
+            border: 3px solid var(--background);
+            box-shadow: inset 2px 2px 4px var(--dark-shadow), inset -2px -2px 4px var(--light-shadow);
+        }
+
+        @media (max-width: 1200px) {
+            .content-body {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 400px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            body {
+                grid-template-areas: "main";
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .main-content {
+                height: auto;
+                padding: 1.5rem;
+            }
+
+            .content-body {
+                grid-template-rows: auto 350px;
+                padding: 0;
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .day-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        /* --- NEW: Map Icons & Routing Path --- */
+
+        /* Keyframe for the animated "marching ants" effect */
+        @keyframes marching-ants {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        /* Styles the SVG path created by the routing machine */
+        .leaflet-routing-alt path {
+            stroke: var(--primary);
+            stroke-width: 4px;
+            stroke-dasharray: 10, 10;
+            animation: marching-ants 1s linear infinite;
+            opacity: 0.8;
+        }
+
+        /* Neumorphic Custom Marker Style */
+        .marker-pin {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--background);
+            position: relative;
+            box-shadow: 5px 5px 8px var(--dark-shadow), -5px -5px 8px var(--light-shadow);
+            transition: var(--transition);
+        }
+
+        /* Inner dot to show color */
+        .marker-pin::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--text-secondary);
+            /* Default color */
+            transition: var(--transition);
+        }
+
+        /* Different colors for different marker types */
+        .visit-marker .marker-pin::after {
+            background-color: var(--primary);
+        }
+
+        .travel-marker .marker-pin::after {
+            background-color: var(--success);
+        }
+
+        /* Highlighted state for the selected marker */
+        .highlight-marker .marker-pin {
+            box-shadow: 0 0 0 3px var(--primary), 7px 7px 14px var(--dark-shadow);
+        }
+
+        .highlight-marker .marker-pin::after {
+            background-color: var(--danger);
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .btn-map {
+            padding: 10px;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            background: var(--background);
+            box-shadow: 3px 3px 6px var(--dark-shadow), -3px -3px 6px var(--light-shadow);
+            transition: var(--transition);
+            flex-shrink: 0;
+            /* Prevents the button from shrinking */
+        }
+
+        .btn-map:hover {
+            color: var(--primary);
+            box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
+            transform: translateY(-2px);
+        }
+
+        .btn-map:active {
+            box-shadow: inset 2px 2px 5px var(--dark-shadow), inset -2px -2px 5px var(--light-shadow);
+            transform: translateY(1px);
+        }
+
+        /* Add this CSS for the hamburger menu */
+        #menu-toggle-btn {
+            display: none;
+            /* Hidden on desktop */
+        }
+
+        @media (max-width: 992px) {
+            body {
+                grid-template-areas: "main";
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .main-content {
+                height: auto;
+                padding: 1.5rem;
+            }
+
+            .content-body {
+                grid-template-rows: auto 350px;
+                padding: 0;
+                gap: 1.5rem;
+            }
+
+            /* --- Hamburger Menu Logic --- */
+            #menu-toggle-btn {
+                display: inline-flex;
+                order: -1;
+                /* Puts it on the left */
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 320px;
+                max-width: 90%;
+                z-index: 1000;
+                background: var(--background);
+                /* Hides the sidebar off-screen by default */
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                box-shadow: 10px 0 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .sidebar.is-open {
+                /* This class makes the sidebar slide into view */
+                transform: translateX(0);
+            }
+        }
+        .day-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem; /* Adjust gap as needed */
+        }
+    </style>
 </head>
+
 <body>
     <script id="itinerary_data" type="application/json">
         {{ itinerary_json|safe }}
@@ -305,7 +500,7 @@
                 <span class="trip-detail-label">Dates:</span>
                 <span class="trip-detail-value">
                     {% if itinerary_data and itinerary_data|length > 0 %}
-                    {{ itinerary_data.0.date }} -
+                    {{ itinerary_data.0.date }} <br>
                     {% with last_item=itinerary_data|last %}
                     {{ last_item.date }}
                     {% endwith %}
@@ -317,11 +512,11 @@
             <div class="trip-detail">
                 <span class="trip-detail-label">Duration:</span>
                 <span class="trip-detail-value">
-                     {% if itinerary_data and itinerary_data|length > 0 %}
-                         {{ itinerary_data|length }} Day(s)
-                     {% else %}
-                         N/A
-                     {% endif %}
+                    {% if itinerary_data and itinerary_data|length > 0 %}
+                    {{ itinerary_data|length }} Day(s)
+                    {% else %}
+                    N/A
+                    {% endif %}
                 </span>
             </div>
         </div>
@@ -333,16 +528,30 @@
                     <span class="day-name">{{ day_plan.day }}</span>
                     <span class="day-date">{{ day_plan.date }}</span>
                 </div>
-                <i class="fa-solid fa-chevron-right"></i>
+        
+                <div class="day-nav-actions">
+                    <i class="fa-solid fa-chevron-right"></i>
+        
+                    
+                    <a href="{{ day_plan.google_maps_url }}" target="_blank" class="btn-map" title="Open Route in Google Maps">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </a>
+                    
+                </div>
             </div>
             {% endfor %}
         </div>
-    </div>
+        </div>
 
     <div class="main-content">
         <div class="content-header">
 
-            <h1 class="content-title">Ascendia GO</h1>
+            <button class="btn" id="menu-toggle-btn" aria-label="Toggle Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <h2 class="content-title">Ascendia GO</h2>
+
             <div class="day-controls">
                 <button id="prev-day" class="btn">
                     <i class="fa-solid fa-chevron-left"></i> Previous Day
@@ -351,25 +560,28 @@
                     Next Day <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
+
         </div>
 
         <div class="content-body">
             <div class="timeline-container">
                 {% for day_plan in itinerary_data %}
-                <div class="timeline-day {% if forloop.first %}active{% endif %}" data-day-index="{{ forloop.counter0 }}">
+                <div class="timeline-day {% if forloop.first %}active{% endif %}"
+                    data-day-index="{{ forloop.counter0 }}">
                     <div class="timeline">
                         {% for activity in day_plan.activities %}
                         <div class="timeline-item">
-                            <div class="timeline-card {{ activity.type|lower }}" data-activity-id="{{ activity.id }}">
+                            <div class="timeline-card {{ activity.type|lower }}"
+                                data-activity-id="{{ activity.id }}">
                                 <div class="timeline-time">{{ activity.time_slot }}</div>
                                 <div class="timeline-type {{ activity.type|lower }}">{{ activity.type }}</div>
                                 <h4 class="timeline-title">{{ activity.description }}</h4>
                                 <div class="timeline-details">
                                     <strong>Location:</strong>
                                     {% if activity.type == 'Travel' %}
-                                        {{ activity.end_point_location|default:"N/A" }}
+                                    {{ activity.end_point_location|default:"N/A" }}
                                     {% else %}
-                                        {{ activity.location_name|default:"N/A" }}
+                                    {{ activity.location_name|default:"N/A" }}
                                     {% endif %}
                                 </div>
                                 {% if activity.transport_mode_details %}
@@ -401,10 +613,38 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const menuButton = document.getElementById('menu-toggle-btn');
+            const sidebar = document.querySelector('.sidebar');
+
+            if (menuButton && sidebar) {
+                menuButton.addEventListener('click', function (e) {
+                    e.stopPropagation(); // stop bubbling so it won’t instantly close
+                    sidebar.classList.toggle('is-open');
+                });
+
+                // Close sidebar if clicking outside
+                document.addEventListener('click', function (e) {
+                    if (
+                        sidebar.classList.contains('is-open') &&
+                        !sidebar.contains(e.target) &&
+                        !menuButton.contains(e.target)
+                    ) {
+                        sidebar.classList.remove('is-open');
+                    }
+                });
+            }
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && sidebar.classList.contains('is-open')) {
+                    sidebar.classList.remove('is-open');
+                }
+            });
+
             const dayNavItems = document.querySelectorAll('.day-nav-item');
             const timelineDays = document.querySelectorAll('.timeline-day');
             const prevDayBtn = document.getElementById('prev-day');
@@ -424,8 +664,8 @@
             }
 
             if (!itineraryData || itineraryData.length === 0) {
-                 console.warn("Itinerary data is empty or invalid. Map and timeline will not be populated.");
-                 return;
+                console.warn("Itinerary data is empty or invalid. Map and timeline will not be populated.");
+                return;
             }
 
             let currentDayIndex = 0;
@@ -479,12 +719,12 @@
                         }
                     }
                 }
-                
+
                 const view = initialCoords ? initialCoords : [20, 0];
                 const zoom = initialCoords ? 13 : 2;
-                
+
                 map = L.map(mapContainer, {
-                    zoomControl: true,
+                    zoomControl: false,
                     preferCanvas: true
                 }).setView(view, zoom);
 
@@ -538,7 +778,7 @@
                                     activityId: `${activity.id}-start`,
                                     activityType: 'travel'
                                 }).bindPopup(`<div class="map-popup">Start: ${activity.start_point_location || 'Start'}</div>`);
-                                
+
                                 const endMarker = L.marker([endLat, endLng], {
                                     icon: createMarkerIcon('travel'),
                                     activityId: `${activity.id}-end`,
@@ -568,10 +808,10 @@
                                 });
 
                                 const routeInfo = { id: activity.id, control: routeControl, dayIndex: dayIndex, line: null };
-                                routeControl.on('routesfound', function(e) {
+                                routeControl.on('routesfound', function (e) {
                                     if (e.routes && e.routes.length > 0 && e.routes[0].line) {
-                                      e.routes[0].line.options.activityId = activity.id;
-                                      routeInfo.line = e.routes[0].line;
+                                        e.routes[0].line.options.activityId = activity.id;
+                                        routeInfo.line = e.routes[0].line;
                                     }
                                 });
                                 routeControls.push(routeInfo);
@@ -584,75 +824,75 @@
             }
 
             function updateMapDisplay(dayIndex) {
-                 if (!map) return;
-                 map.eachLayer(layer => {
-                     if (!layer._url) {
-                         map.removeLayer(layer);
-                     }
-                 });
+                if (!map) return;
+                map.eachLayer(layer => {
+                    if (!layer._url) {
+                        map.removeLayer(layer);
+                    }
+                });
 
-                 const currentDayLayerGroup = dayLayers[dayIndex];
-                 const currentDayRoutes = routeControls.filter(rc => rc.dayIndex === dayIndex);
+                const currentDayLayerGroup = dayLayers[dayIndex];
+                const currentDayRoutes = routeControls.filter(rc => rc.dayIndex === dayIndex);
 
-                 if (currentDayLayerGroup && currentDayLayerGroup.getLayers().length > 0) {
-                     currentDayLayerGroup.addTo(map);
-                     currentDayRoutes.forEach(rc => {
-                         rc.control.addTo(map);
-                     });
+                if (currentDayLayerGroup && currentDayLayerGroup.getLayers().length > 0) {
+                    currentDayLayerGroup.addTo(map);
+                    currentDayRoutes.forEach(rc => {
+                        rc.control.addTo(map);
+                    });
 
-                     const bounds = currentDayLayerGroup.getBounds();
-                     if (bounds.isValid()) {
-                         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
-                     }
-                 } else {
-                     const firstDayWithCoords = itineraryData.find(d => d.activities.some(a => a.latitude || a.start_point_lat));
-                     if (firstDayWithCoords) {
-                         const firstActivity = firstDayWithCoords.activities.find(a => a.latitude || a.start_point_lat);
-                         const lat = parseFloat(firstActivity.latitude || firstActivity.start_point_lat);
-                         const lon = parseFloat(firstActivity.longitude || firstActivity.start_point_lon);
-                         if(!isNaN(lat) && !isNaN(lon)) map.setView([lat, lon], 12);
-                     }
-                 }
-                 setTimeout(() => map.invalidateSize(), 100);
+                    const bounds = currentDayLayerGroup.getBounds();
+                    if (bounds.isValid()) {
+                        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+                    }
+                } else {
+                    const firstDayWithCoords = itineraryData.find(d => d.activities.some(a => a.latitude || a.start_point_lat));
+                    if (firstDayWithCoords) {
+                        const firstActivity = firstDayWithCoords.activities.find(a => a.latitude || a.start_point_lat);
+                        const lat = parseFloat(firstActivity.latitude || firstActivity.start_point_lat);
+                        const lon = parseFloat(firstActivity.longitude || firstActivity.start_point_lon);
+                        if (!isNaN(lat) && !isNaN(lon)) map.setView([lat, lon], 12);
+                    }
+                }
+                setTimeout(() => map.invalidateSize(), 100);
             }
 
             function highlightActivity(activityId) {
                 document.querySelectorAll('.timeline-card').forEach(card => card.classList.remove('highlighted'));
-                
+
                 const currentDayLayerGroup = dayLayers[currentDayIndex];
                 if (!currentDayLayerGroup) return;
 
                 currentDayLayerGroup.eachLayer(marker => {
                     if (marker.options.activityType === 'travel') {
-                         marker.setIcon(createMarkerIcon('travel'));
+                        marker.setIcon(createMarkerIcon('travel'));
                     } else {
-                         marker.setIcon(createMarkerIcon('visit'));
+                        marker.setIcon(createMarkerIcon('visit'));
                     }
                     marker.closePopup();
                 });
-                
+
                 routeControls.filter(rc => rc.dayIndex === currentDayIndex).forEach(rc => {
                     if (rc.line) {
                         rc.line.setStyle({ color: 'var(--success)', weight: 4, opacity: 0.7 });
                     }
                 });
-                
+
                 const timelineCard = document.querySelector(`.timeline-card[data-activity-id="${activityId}"]`);
                 if (timelineCard) {
                     timelineCard.classList.add('highlighted');
                     timelineCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-                
+
                 currentDayLayerGroup.eachLayer(marker => {
                     if (marker.options.activityId && String(marker.options.activityId).startsWith(activityId)) {
                         marker.setIcon(createMarkerIcon('highlight'));
                         marker.openPopup();
                     }
                 });
-                
+
                 const routeToHighlight = routeControls.find(rc => rc.id === activityId && rc.dayIndex === currentDayIndex);
                 if (routeToHighlight && routeToHighlight.line) {
-                     routeToHighlight.line.setStyle({ color: 'var(--accent)', weight: 6, opacity: 1 });
+                    routeToHighlight.line.setStyle({ color: 'var(--accent)', weight: 6, opacity: 1 });
                 }
             }
 
@@ -666,7 +906,7 @@
 
                 if (dayNavItems[currentDayIndex]) dayNavItems[currentDayIndex].classList.add('active');
                 if (timelineDays[currentDayIndex]) timelineDays[currentDayIndex].classList.add('active');
-                
+
                 updateMapDisplay(currentDayIndex);
 
                 prevDayBtn.disabled = newIndex === 0;
@@ -688,7 +928,7 @@
             nextDayBtn.addEventListener('click', () => changeDay(currentDayIndex + 1));
 
             document.querySelectorAll('.timeline-card').forEach(card => {
-                card.addEventListener('click', function() {
+                card.addEventListener('click', function () {
                     const activityId = this.dataset.activityId;
                     highlightActivity(activityId);
                 });
@@ -699,14 +939,14 @@
             nextDayBtn.disabled = currentDayIndex >= dayNavItems.length - 1;
 
             if (timelineDays.length > 0) {
-                 const firstActivityCard = timelineDays[0].querySelector('.timeline-card');
-                 if (firstActivityCard) {
-                     highlightActivity(firstActivityCard.dataset.activityId);
-                 }
+                const firstActivityCard = timelineDays[0].querySelector('.timeline-card');
+                if (firstActivityCard) {
+                    highlightActivity(firstActivityCard.dataset.activityId);
+                }
             }
 
         });
     </script>
 </body>
-</html>
 
+</html>
