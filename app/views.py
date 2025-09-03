@@ -2,6 +2,7 @@
 
 from django.shortcuts import render
 from .forms import ItineraryForm
+import asyncio
 import os
 import json
 import httpx
@@ -12,7 +13,7 @@ import urllib.parse
 logger = logging.getLogger(__name__)
 
 # --- Gemini API Configuration ---
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY2')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 if not GEMINI_API_KEY:
     raise ValueError("FATAL: GEMINI_API_KEY not found in your .env file.")
 
